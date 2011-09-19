@@ -1,10 +1,7 @@
-Common subdirectories: date/date_api and date.new/date_api
-Common subdirectories: date/date_migrate and date.new/date_migrate
-Common subdirectories: date/date_popup and date.new/date_popup
-Common subdirectories: date/date_repeat and date.new/date_repeat
-diff -up date/date.theme date.new/date.theme
---- date/date.theme	2011-08-23 12:53:17.000000000 +0200
-+++ date.new/date.theme	2011-09-19 08:06:15.648758345 +0200
+diff --git date.theme date.theme
+index 444b253..478668b 100644
+--- date.theme
++++ date.theme
 @@ -12,8 +12,8 @@
  /**
   * Theme Start/End date combination in the view.
@@ -35,7 +32,7 @@ diff -up date/date.theme date.new/date.theme
   *   $dates['format'] - the format string used on these dates
   *   $dates['value']['local']['object'] - the local date object for the Start date
   *   $dates['value2']['local']['object'] - the local date object for the End date
-@@ -62,7 +62,7 @@ function theme_date_display_combination(
+@@ -62,7 +62,7 @@ function theme_date_display_combination($vars) {
    $add_rdf     = $vars['add_rdf'];
    $precision   = date_granularity_precision($field['settings']['granularity']);
  
@@ -44,7 +41,7 @@ diff -up date/date.theme date.new/date.theme
  
    // If date_id is set for this field and the delta doesn't match, don't display it.
    if (!empty($entity->date_id)) {
-@@ -77,12 +77,12 @@ function theme_date_display_combination(
+@@ -77,12 +77,12 @@ function theme_date_display_combination($vars) {
    // Check the formatter settings to see if the repeat rule should be
    // displayed. Show it only with the first multiple value date.
    list($id) = entity_extract_ids($entity_type, $entity);
@@ -60,7 +57,7 @@ diff -up date/date.theme date.new/date.theme
        'entity_type' => $entity_type,
        'entity' => $entity,
      );
-@@ -106,14 +106,14 @@ function theme_date_display_combination(
+@@ -106,14 +106,14 @@ function theme_date_display_combination($vars) {
      case 'value':
        $date1 = $dates['value']['formatted'];
        $date2 = $date1;
@@ -77,7 +74,7 @@ diff -up date/date.theme date.new/date.theme
        break;
    }
  
-@@ -144,7 +144,7 @@ function theme_date_display_combination(
+@@ -144,7 +144,7 @@ function theme_date_display_combination($vars) {
    // Start and End dates match or there is no End date, display a complete single date.
    elseif ($date1 == $date2 || empty($date2)) {
      $output .= theme('date_display_single', array(
@@ -86,7 +83,7 @@ diff -up date/date.theme date.new/date.theme
        'timezone' => $timezone,
        'attributes' => $attributes,
        'rdf_mapping' => $rdf_mapping,
-@@ -155,13 +155,13 @@ function theme_date_display_combination(
+@@ -155,13 +155,13 @@ function theme_date_display_combination($vars) {
    // Same day, different times, don't repeat the date but show both Start and End times.
    // We can NOT do this if the replacement value is an integer instead of a time string.
    elseif ($has_time_string && $dates['value']['formatted_date'] == $dates['value2']['formatted_date']) {
@@ -103,7 +100,7 @@ diff -up date/date.theme date.new/date.theme
        'attributes' => $attributes,
        'rdf_mapping' => $rdf_mapping,
        'add_rdf' => $add_rdf,
-@@ -169,7 +169,7 @@ function theme_date_display_combination(
+@@ -169,7 +169,7 @@ function theme_date_display_combination($vars) {
      ));
      $replaced = str_replace($time1, $time, $date1);
      $output .= theme('date_display_single', array(
@@ -112,7 +109,7 @@ diff -up date/date.theme date.new/date.theme
        'timezone' => $timezone,
        'attributes' => array(),
        'rdf_mapping' => array(),
-@@ -180,9 +180,9 @@ function theme_date_display_combination(
+@@ -180,9 +180,9 @@ function theme_date_display_combination($vars) {
    // Different days, display both in their entirety.
    else {
      $output .= theme('date_display_range', array(
@@ -125,7 +122,7 @@ diff -up date/date.theme date.new/date.theme
        'attributes' => $attributes,
        'rdf_mapping' => $rdf_mapping,
        'add_rdf' => $add_rdf,
-@@ -295,7 +295,7 @@ function theme_date_display_interval($va
+@@ -295,7 +295,7 @@ function theme_date_display_interval($vars) {
    }
  
    $time_ago_vars = array(
@@ -139,11 +136,7 @@ diff -up date/date.theme date.new/date.theme
    // Group start/end items together in fieldset.
    $fieldset = array(
 -    '#title' => t($instance['label']) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
-+    '#title' => t($element['#title']) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
++    '#title' => check_plain($element['#title']) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
      '#value' => '',
      '#description' => !empty($element['#fieldset_description']) ? $element['#fieldset_description'] : '',
      '#attributes' => array(),
-Common subdirectories: date/date_tools and date.new/date_tools
-Common subdirectories: date/date_views and date.new/date_views
-Common subdirectories: date/help and date.new/help
-Common subdirectories: date/tests and date.new/tests
