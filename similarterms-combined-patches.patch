@@ -1,0 +1,70 @@
+diff --git a/similarterms.module b/similarterms.module
+index 990a307..e466149 100644
+--- a/similarterms.module
++++ b/similarterms.module
+@@ -51,7 +51,7 @@ function similarterms_block_info() {
+     'cache' => DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE,
+   );
+   foreach (taxonomy_get_vocabularies() as $v) {
+-    $blocks[$v->vid] = array(
++    $blocks[$v->machine_name] = array(
+       'info' => t('Similar entries from the @vocab vocabulary.', array('@vocab' => $v->name)),
+       'cache' => DRUPAL_CACHE_PER_ROLE | DRUPAL_CACHE_PER_PAGE
+     );
+@@ -63,7 +63,10 @@ function similarterms_block_info() {
+  * Implements hook_block_view().
+  */
+ function similarterms_block_view($delta = '') {
+-  $vocid = $delta ? $delta : 'all';
++  $vocid = $delta;
++  if ($delta != 'all' && $vocab = taxonomy_vocabulary_machine_name_load($delta)) {
++    $vocid = $vocab->vid;
++  }
+   $block = array(
+     'subject' => t('Similar'),
+     'content' => theme('similarterms', array(
+@@ -107,9 +110,9 @@ function similarterms_block_configure($delta = '') {
+     '#multiple' => TRUE
+   );
+   if ($delta != 'all') {
++    $vocab = $vocab = taxonomy_vocabulary_machine_name_load($delta);
+     $terms = array();
+-    $tree = ($delta);
+-    foreach ($tree as $term) {
++    foreach (taxonomy_term_load_multiple(FALSE, array('vid' => $vocab->vid)) as $term) {
+       $terms[$term->tid] = $term->name;
+     }
+     $form['ignoreterms'] = array(
+@@ -507,22 +510,27 @@ function similarterms_taxonomy_get_vocabularies() {
+  * This function gets all taxonomy vocabularies for a certain node with option limits for Vocabularies
+  */
+ function similarterms_taxonomy_node_get_terms($node, $vid = NULL) {
+-  $terms = &drupal_static(__FUNCTION__);
++  $terms = &drupal_static(__FUNCTION__, array());
+ 
+   $fields = field_info_fields();
+   $story_vocabs = array();
+   foreach ($fields as $field_name => $field) {
+     if ($field['type'] == 'taxonomy_term_reference' && !empty($field['bundles']['node']) && in_array($node->type, $field['bundles']['node'])) {
+       $node_fields = field_get_items('node', $node, $field['field_name']);
+-      foreach ($node_fields as $item) {
+-        if (($vid == NULL) || ($item['taxonomy_term']->vid == $vid)) {
+-            $terms[$node->vid]['tid'][$item['tid']] = $item['taxonomy_term'];
++      if ($node_fields) {
++        foreach ($node_fields as $item) {
++          if (!isset($item['taxonomy_term']) && isset($item['tid'])) {
++            $item['taxonomy_term'] = taxonomy_term_load($item['tid']);
++          }
++          if (($vid == NULL) || ($item['taxonomy_term']->vid == $vid)) {
++              $terms[$node->vid]['tid'][$item['tid']] = $item['taxonomy_term'];
++          }
+         }
+       }
+     }
+   }
+ 
+-  return $terms[$node->vid]['tid'];
++  return !empty($terms[$node->vid]) ? $terms[$node->vid]['tid'] : array();
+ }
+ 
+ /**
